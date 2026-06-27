@@ -2,24 +2,32 @@ const express = require('express');
 const axios = require('axios');
 const app = express();
 
-// ۱. لینک کامل BrsApi خودت رو اینجا بذار
+// ۱. لینک کامل BrsApi خودت
 const BRS_API_URL = 'https://Api.BrsApi.ir/Market/Gold_Currency.php?key=BZebdMkfZGGIPMjAIz5UcN6qiJzsLixi';
 
-// ۲. لینک ورکر تستی کلادفلرت رو اینجا بذار
+// ۲. لینک ورکر تستی کلادفلر
 const TEST_WORKER_URL = 'https://testpooool.aliziaye1382.workers.dev/';
 
 app.get('/', async (req, res) => {
+    let brsData;
+
+    // مرحله اول: تست دریافت از BrsApi
     try {
-        // دریافت دیتا از BrsApi (داخل ایران)
-        const response = await axios.get(BRS_API_URL);
-        
-        // شوت کردن دیتا برای ورکر تستی کلادفلر
-        await axios.post(TEST_WORKER_URL, response.data);
-        
-        res.send("✅ تست با موفقیت انجام شد! اطلاعات از ران‌فلر به ورکر تستی کلادفلر شلیک شد.");
+        const response = await axios.get(BRS_API_URL, { timeout: 15000 });
+        brsData = response.data;
     } catch (error) {
-        res.status(500).send("❌ خطا در سمت ران‌فلر: " + error.message);
+        return res.status(500).send("❌ ارور در مرحله ۱ (گرفتن دیتا از BrsApi): " + error.message);
     }
+
+    // مرحله دوم: تست ارسال به کلادفلر
+    try {
+        await axios.post(TEST_WORKER_URL, brsData, { timeout: 15000 });
+    } catch (error) {
+        return res.status(500).send("❌ ارور در مرحله ۲ (شوت کردن به کلادفلر): " + error.message);
+    }
+
+    // اگه از هر دو مرحله جون سالم به در برد
+    res.send("✅ تست با موفقیت انجام شد! اطلاعات شلیک شد به کلادفلر.");
 });
 
 const port = process.env.PORT || 3000;
