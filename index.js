@@ -6,7 +6,7 @@ const app = express();
 const BRS_API_URL = 'https://Api.BrsApi.ir/Market/Gold_Currency.php?key=BZebdMkfZGGIPMjAIz5UcN6qiJzsLixi';
 
 // ۲. لینک ورکر تستی کلادفلر
-const TEST_WORKER_URL = 'https://testpooool.aliziaye1382.workers.dev/';
+const TEST_WORKER_URL = 'https://tala.chat0003.ir/';
 
 app.get('/', async (req, res) => {
     let brsData;
